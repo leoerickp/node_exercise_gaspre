@@ -1,0 +1,27 @@
+import { Category } from "../../../src/domain/interfaces/category.interface";
+import { GetActiveLeafPathsUseCase } from "../../../src/application/use-cases";
+
+describe('GetActiveLeafPathsUseCase', () => {
+  it('should get active leaf paths', () => {
+    const root: Category = {
+      id: 1,
+      name: 'Electrónica',
+      active: true,
+      subcategories: [
+        {
+          id: 2,
+          name: 'Computadoras',
+          active: true,
+          subcategories: [
+            { id: 5, name: 'Laptops', active: true, subcategories: [] },
+            { id: 6, name: 'Desktops', active: false, subcategories: [] }
+          ]
+        },
+        { id: 3, name: 'Celulares', active: true, subcategories: [] },
+        { id: 4, name: 'Accesorios', active: true, subcategories: [] }
+      ]
+    };
+    const result = new GetActiveLeafPathsUseCase().execute(root);
+    expect(result).toEqual(['Electrónica/Computadoras/Laptops', 'Electrónica/Celulares', 'Electrónica/Accesorios']);
+  });
+});

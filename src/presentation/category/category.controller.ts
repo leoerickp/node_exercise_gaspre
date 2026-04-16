@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { AnalizeTreeUseCase, BuildTreeUseCase, GetActiveLeafPathsUseCase } from "../../application/use-cases";
+import { AnalizeTreeUseCase, BuildTreeUseCase, FindCategoryByIdUseCase, GetActiveLeafPathsUseCase } from "../../application/use-cases";
 import { rootStore } from "../../domain/datasources/category/root.datasource";
 import { HttpError } from "../../shared/errors/http-error";
 
@@ -8,6 +8,7 @@ export class CategoryController {
     private readonly buildTreeUseCase: BuildTreeUseCase,
     private readonly getActiveLeafPathsUseCase: GetActiveLeafPathsUseCase,
     private readonly analizeTreeUseCase: AnalizeTreeUseCase,
+    private readonly findCategoryByIdUseCase: FindCategoryByIdUseCase,
   ){}
 
   public buildTree = (req: Request, res: Response) => {
@@ -39,5 +40,18 @@ export class CategoryController {
     }
     const stats = this.analizeTreeUseCase.execute(root);
     return res.json(stats);
+  }
+
+  public findCategoryById = (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    const root = rootStore.get();
+    if(!root){
+      throw new HttpError(404, 'Categories are empty');
+    }
+    const category = this.findCategoryByIdUseCase.execute(root, id);
+    if(!category){
+      throw new HttpError(404, 'Category not found');
+    }
+    return res.json(category);
   }
 }
